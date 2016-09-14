@@ -1,12 +1,10 @@
 name: "GoogleNet"
-input: "data"
-input_shape {
-  dim: 10
-  dim: 3
-  dim: 224
-  dim: 224
+layer {
+  name: "data"
+  type: "Input"
+  top: "data"
+  input_param { shape: { dim: 1 dim: 3 dim: 224 dim: 224 } }
 }
-force_backward: true
 layer {
   name: "conv1/7x7_s2"
   type: "Convolution"
@@ -2114,13 +2112,22 @@ layer {
   top: "pool5/7x7_s1"
   pooling_param {
     pool: AVE
-    kernel_size: 7
+    global_pooling: true
     stride: 1
   }
 }
 layer {
+  name: "pool5/drop_7x7_s1"
+  type: "Dropout"
+  bottom: "pool5/7x7_s1"
+  top: "pool5/7x7_s1"
+  dropout_param {
+    dropout_ratio: 0.4
+  }
+}
+layer {
   name: "loss3/classifier"
-  type: "Convolution"
+  type: "InnerProduct"
   bottom: "pool5/7x7_s1"
   top: "loss3/classifier"
   param {
@@ -2131,9 +2138,8 @@ layer {
     lr_mult: 2
     decay_mult: 0
   }
-  convolution_param {
-    num_output: 80
-    kernel_size: 1
+  inner_product_param {
+    num_output: 1000
     weight_filler {
       type: "xavier"
     }
@@ -2145,14 +2151,7 @@ layer {
 }
 layer {
   name: "prob"
-  type: "Sigmoid"
+  type: "Softmax"
   bottom: "loss3/classifier"
   top: "prob"
-}
-layer {
-  bottom: "prob"
-  bottom: "prob"
-  top: "loss"
-  name: "dummyLoss"
-  type: "EuclideanLoss"
 }
