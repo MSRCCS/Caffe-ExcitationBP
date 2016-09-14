@@ -30,7 +30,7 @@ def showAttMap(img, attMaps, tagName, overlap = True, blur = False):
         attMap = attMaps[i].copy()
         attMap -= attMap.min()
         if attMap.max() > 0:
-	    maxval = max( attMap.max(),-1 )
+	    maxval = attMap.max()
             attMap /= maxval
         attMap = transform.resize(attMap, (img.shape[:2]), order = 3, mode = 'nearest')
         if blur:

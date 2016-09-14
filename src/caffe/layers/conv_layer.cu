@@ -60,6 +60,8 @@ __global__ void pos_kernel(const int n, const Dtype* a, Dtype* b) {
   CUDA_KERNEL_LOOP(index, n) {
     if (a[index] > 0)
       b[index] = a[index];
+    else
+      b[index] = -a[index];
   }
 }
 
