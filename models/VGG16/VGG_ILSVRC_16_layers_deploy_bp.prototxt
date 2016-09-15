@@ -285,7 +285,7 @@ layer {
 layer {
   bottom: "pool5"
   top: "fc6"
-  name: "fc6"
+  name: "fc6_bp"
   type: "Convolution"
   convolution_param {
     num_output: 4096
@@ -301,7 +301,7 @@ layer {
 layer {
   bottom: "fc6"
   top: "fc7"
-  name: "fc7"
+  name: "fc7_bp"
   type: "Convolution"
   convolution_param {
     num_output: 4096
@@ -317,20 +317,25 @@ layer {
 layer {
   bottom: "fc7"
   top: "fc8"
-  name: "fc8"
+  name: "fc8_bp"
   type: "Convolution"
-  inner_product_param {
+  convolution_param {
     num_output: 1000
     kernel_size: 1
   }
 }
 
 layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
+  name: "prob"
+  type: "Sigmoid"
   bottom: "fc8"
-  bottom: "label"
-  top: "loss"
+  top: "prob"
 }
-
+layer {
+  bottom: "prob"
+  bottom: "prob"
+  top: "loss"
+  name: "dummyLoss"
+  type: "EuclideanLoss"
+}
 

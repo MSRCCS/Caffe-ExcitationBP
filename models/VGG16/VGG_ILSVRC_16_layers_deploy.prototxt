@@ -323,11 +323,16 @@ layer {
 }
 
 layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
+  name: "prob"
+  type: "Sigmoid"
   bottom: "fc8"
-  bottom: "label"
-  top: "loss"
+  top: "prob"
 }
-
+layer {
+  bottom: "prob"
+  bottom: "prob"
+  top: "loss"
+  name: "dummyLoss"
+  type: "EuclideanLoss"
+}
 
