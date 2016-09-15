@@ -2114,7 +2114,8 @@ layer {
   top: "pool5/7x7_s1"
   pooling_param {
     pool: AVE
-    kernel_size: 7
+    #kernel_size: 7
+    global_pooling: true
     stride: 1
   }
 }
