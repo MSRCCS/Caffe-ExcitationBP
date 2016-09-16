@@ -149,5 +149,5 @@ STUB_GPU(UnPoolingLayer);
 #endif
 
 INSTANTIATE_CLASS(UnPoolingLayer);
-
+REGISTER_LAYER_CLASS(UnPooling);
 }  // namespace caffe
