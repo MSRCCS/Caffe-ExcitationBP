@@ -27,7 +27,7 @@ class SelectOneLayer : public NeuronLayer<Dtype> {
   explicit SelectOneLayer(const LayerParameter& param)
       : NeuronLayer<Dtype>(param) {}
 
-  virtual inline const char* type() const { return "ReLU"; }
+  virtual inline const char* type() const { return "SelectOne"; }
 
  protected:
   /**

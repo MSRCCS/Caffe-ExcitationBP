@@ -41,5 +41,5 @@ STUB_GPU(SelectOneLayer);
 #endif
 
 INSTANTIATE_CLASS(SelectOneLayer);
-
+REGISTER_LAYER_CLASS(SelectOne);
 }  // namespace caffe
