@@ -19,7 +19,8 @@ void SelectOneLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       top_data[i] = 0;
     }
   }
-  top_data[maxidx] = bottom_data[maxidx];
+  //top_data[maxidx] = bottom_data[maxidx];
+  top_data[maxidx] = 1;
 }
 
 template <typename Dtype>
