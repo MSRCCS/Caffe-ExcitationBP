@@ -21,6 +21,7 @@ void ConvolutionBPLayer<Dtype>::compute_output_shape() {
   }
 }
 
+
 template <typename Dtype>
 void ConvolutionBPLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
@@ -95,5 +96,5 @@ STUB_GPU(ConvolutionBPLayer);
 #endif
 
 INSTANTIATE_CLASS(ConvolutionBPLayer);
-
+REGISTER_LAYER_CLASS(ConvolutionBP);
 }  // namespace caffe

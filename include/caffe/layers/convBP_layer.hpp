@@ -65,6 +65,7 @@ class ConvolutionBPLayer : public BaseConvolutionLayer<Dtype> {
       : BaseConvolutionLayer<Dtype>(param) {}
 
   virtual inline const char* type() const { return "ConvolutionBP"; }
+  virtual inline bool EqualNumBottomTopBlobs() const { return false; }
 
  protected:
   virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
