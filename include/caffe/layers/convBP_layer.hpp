@@ -1,5 +1,5 @@
-#ifndef CAFFE_CONV_LAYER_HPP_
-#define CAFFE_CONV_LAYER_HPP_
+#ifndef CAFFE_CONVBP_LAYER_HPP_
+#define CAFFE_CONVBP_LAYER_HPP_
 
 #include <vector>
 
@@ -64,7 +64,7 @@ class ConvolutionBPLayer : public BaseConvolutionLayer<Dtype> {
   explicit ConvolutionBPLayer(const LayerParameter& param)
       : BaseConvolutionLayer<Dtype>(param) {}
 
-  virtual inline const char* type() const { return "Convolution"; }
+  virtual inline const char* type() const { return "ConvolutionBP"; }
 
  protected:
   virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
