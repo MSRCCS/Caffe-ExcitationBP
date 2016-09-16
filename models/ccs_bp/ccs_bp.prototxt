@@ -289,7 +289,7 @@ layer {
   name: "fc6_bp"
   type: "Convolution"
   convolution_param {
-    name: "fc6_param"
+    name: "fc6_bp"
     num_output: 4096
     kernel_size: 7
   }
@@ -306,7 +306,7 @@ layer {
   name: "fc7_bp"
   type: "Convolution"
   convolution_param {
-    name: "fc7_param"
+    name: "fc7_bp"
     num_output: 4096
     kernel_size: 1
   }
@@ -323,7 +323,7 @@ layer {
   name: "fc8_bp"
   type: "Convolution"
   convolution_param {
-    nane: "fc8_param"
+    nane: "fc8_bp"
     num_output: 1000
     kernel_size: 1
   }
@@ -355,7 +355,7 @@ layer {
   bottom: "select_bp"
   bottom: "fc8_bp"
   convolution_param{
-     name: "fc8_param"
+     name: "fc8_bp"
      num_output: 4096
      kernel_size: 1
   }
@@ -373,7 +373,7 @@ layer {
   bottom: "fc8_fw"
   bottom: "fc7_bp"
   convolution_param{
-     name: "fc7_param"
+     name: "fc7_bp"
      num_output: 4096
      kernel_size: 1
   }
@@ -391,7 +391,7 @@ layer {
   bottom: "fc7_fw"
   bottom: "fc6_bp"
   convolution_param{
-     name: "fc6_param"
+     name: "fc6_bp"
      num_output: 25088
      kernel_size: 1
   }
