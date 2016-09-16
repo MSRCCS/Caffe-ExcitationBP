@@ -289,10 +289,17 @@ layer {
   name: "fc6_bp"
   type: "Convolution"
   convolution_param {
-    name: "fc6_bp"
     num_output: 4096
     kernel_size: 7
   }
+  param {
+    name: "fc6_w"
+    lr_mult: 1
+  }
+  param {
+    name: "fc6_b"
+    lr_mult: 2
+  }    
 }
 layer {
   bottom: "fc6_bp"
@@ -306,10 +313,17 @@ layer {
   name: "fc7_bp"
   type: "Convolution"
   convolution_param {
-    name: "fc7_bp"
     num_output: 4096
     kernel_size: 1
   }
+  param {
+    name: "fc7_w"
+    lr_mult: 1
+  }
+  param {
+    name: "fc7_b"
+    lr_mult: 2
+  }  
 }
 layer {
   bottom: "fc7_bp"
@@ -323,10 +337,17 @@ layer {
   name: "fc8_bp"
   type: "Convolution"
   convolution_param {
-    nane: "fc8_bp"
     num_output: 1000
     kernel_size: 1
   }
+  param {
+    name: "fc8_w"
+    lr_mult: 1
+  }
+  param {
+    name: "fc8_b"
+    lr_mult: 2
+  }  
 }
 
 layer {
@@ -355,10 +376,17 @@ layer {
   bottom: "select_bp"
   bottom: "fc8_bp"
   convolution_param{
-     name: "fc8_bp"
      num_output: 4096
      kernel_size: 1
   }
+  param {
+    name: "fc8_w"
+    lr_mult: 1
+  }
+  param {
+    name: "fc8_b"
+    lr_mult: 2
+  }  
 }
 layer {
   bottom: "fc8_fw"
@@ -373,10 +401,17 @@ layer {
   bottom: "fc8_fw"
   bottom: "fc7_bp"
   convolution_param{
-     name: "fc7_bp"
      num_output: 4096
      kernel_size: 1
   }
+  param {
+    name: "fc7_w"
+    lr_mult: 1
+  }
+  param {
+    name: "fc7_b"
+    lr_mult: 2
+  }    
 }
 layer {
   bottom: "fc7_fw"
@@ -391,10 +426,17 @@ layer {
   bottom: "fc7_fw"
   bottom: "fc6_bp"
   convolution_param{
-     name: "fc6_bp"
      num_output: 25088
      kernel_size: 1
   }
+  param {
+    name: "fc6_w"
+    lr_mult: 1
+  }
+  param {
+    name: "fc6_b"
+    lr_mult: 2
+  }    
 }
 layer {
    name: "reshape_pool5"
@@ -402,10 +444,12 @@ layer {
    bottom: "pool5_fw"
    type: "Reshape"
    reshape_param{
+    shape {
      dim: -1
      dim: 512
      dim: 7
      dim: 7
+     }
    }
 }
 layer {
