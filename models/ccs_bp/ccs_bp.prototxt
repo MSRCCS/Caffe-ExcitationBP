@@ -353,6 +353,7 @@ layer {
   type: "ConvolutionBP"
   top: "fc8_fw"
   bottom: "select_bp"
+  bottom: "fc8_bp"
   convolution_param{
      name: "fc8_param"
      num_output: 4096
@@ -370,6 +371,7 @@ layer {
   type: "ConvolutionBP"
   top: "fc7_fw"
   bottom: "fc8_fw"
+  bottom: "fc7_bp"
   convolution_param{
      name: "fc7_param"
      num_output: 4096
@@ -387,6 +389,7 @@ layer {
   type: "ConvolutionBP"
   top: "pool5_fw"
   bottom: "fc7_fw"
+  bottom: "fc6_bp"
   convolution_param{
      name: "fc6_param"
      num_output: 25088
