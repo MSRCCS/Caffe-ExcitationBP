@@ -11,11 +11,16 @@ void SelectOneLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   const Dtype* bottom_data = bottom[0]->cpu_data();
   Dtype* top_data = top[0]->mutable_cpu_data();
   const int count = bottom[0]->count();
-  Dtype negative_slope = this->layer_param_.relu_param().negative_slope();
+  int maxidx = 0;
   for (int i = 0; i < count; ++i) {
-    top_data[i] = std::max(bottom_data[i], Dtype(0))
-        + negative_slope * std::min(bottom_data[i], Dtype(0));
+    if (bottom_data[i] > bottom_data[maxidx])
+    {
+      maxidx = i;
+      top_data[i] = 0;
+    }
   }
+  //top_data[maxidx] = bottom_data[maxidx];
+  top_data[maxidx] = 1;
 }
 
 template <typename Dtype>
@@ -23,14 +28,12 @@ void SelectOneLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
   if (propagate_down[0]) {
-    const Dtype* bottom_data = bottom[0]->cpu_data();
+    //const Dtype* bottom_data = bottom[0]->cpu_data();
     const Dtype* top_diff = top[0]->cpu_diff();
     Dtype* bottom_diff = bottom[0]->mutable_cpu_diff();
     const int count = bottom[0]->count();
-    Dtype negative_slope = this->layer_param_.relu_param().negative_slope();
     for (int i = 0; i < count; ++i) {
-      bottom_diff[i] = top_diff[i] * ((bottom_data[i] > 0)
-          + negative_slope * (bottom_data[i] <= 0));
+      bottom_diff[i] = top_diff[i];
     }
   }
 }
