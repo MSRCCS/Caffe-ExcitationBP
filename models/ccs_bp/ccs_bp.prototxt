@@ -381,10 +381,10 @@ layer {
   }
   param {
     name: "fc8_w"
+    share_mode: 1
     lr_mult: 1
   }
   param {
-    name: "fc8_b"
     lr_mult: 2
   }  
 }
@@ -406,10 +406,10 @@ layer {
   }
   param {
     name: "fc7_w"
+    share_mode: 1
     lr_mult: 1
   }
   param {
-    name: "fc7_b"
     lr_mult: 2
   }    
 }
@@ -431,16 +431,16 @@ layer {
   }
   param {
     name: "fc6_w"
+    share_mode: 1
     lr_mult: 1
   }
   param {
-    name: "fc6_b"
     lr_mult: 2
   }    
 }
 layer {
    name: "reshape_pool5"
-   top: "pool5_fw"
+   top: "pool5_fw_reshaped"
    bottom: "pool5_fw"
    type: "Reshape"
    reshape_param{
@@ -453,11 +453,11 @@ layer {
    }
 }
 layer {
-  bottom: "pool5_fw"
+  bottom: "pool5_fw_reshaped"
   bottom: "pool5_mask"
   top: "conv5_fw"
   name: "pool5_fw"
-  type: "Unpooling"
+  type: "UnPooling"
   pooling_param {
     pool: MAX
     kernel_size: 2
