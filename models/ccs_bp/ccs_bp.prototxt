@@ -370,11 +370,12 @@ layer {
   top: "select_bp"
 }
 layer {
-  name: "fc8_fw"
+  name: "fc8_diff"
   type: "ConvolutionBP"
-  top: "fc8_fw"
+  top: "fc8_diff"
   bottom: "select_bp"
-  bottom: "fc8_bp"
+  # Must put the original layer excitation as the second bottom
+  bottom: "fc7_bp"
   convolution_param{
      num_output: 4096
      kernel_size: 1
@@ -389,17 +390,17 @@ layer {
   }  
 }
 layer {
-  bottom: "fc8_fw"
-  top: "fc8_fw"
+  bottom: "fc8_diff"
+  top: "fc8_diff"
   name: "relu8_bp"
   type: "ReLU"
 }
 layer {
-  name: "fc7_fw"
+  name: "fc7_diff"
   type: "ConvolutionBP"
-  top: "fc7_fw"
-  bottom: "fc8_fw"
-  bottom: "fc7_bp"
+  top: "fc7_diff"
+  bottom: "fc8_diff"
+  bottom: "fc6_bp"
   convolution_param{
      num_output: 4096
      kernel_size: 1
@@ -414,16 +415,16 @@ layer {
   }    
 }
 layer {
-  bottom: "fc7_fw"
-  top: "fc7_fw"
+  bottom: "fc7_diff"
+  top: "fc7_diff"
   name: "relu7_bp"
   type: "ReLU"
 }
 layer {
-  name: "fc6_fw"
+  name: "fc6_diff"
   type: "ConvolutionBP"
-  top: "pool5_fw"
-  bottom: "fc7_fw"
+  top: "pool5_diff"
+  bottom: "fc7_diff"
   bottom: "fc6_bp"
   convolution_param{
      num_output: 25088
@@ -440,8 +441,8 @@ layer {
 }
 layer {
    name: "reshape_pool5"
-   top: "pool5_fw_reshaped"
-   bottom: "pool5_fw"
+   top: "pool5_diff_reshaped"
+   bottom: "pool5_diff"
    type: "Reshape"
    reshape_param{
     shape {
@@ -453,10 +454,10 @@ layer {
    }
 }
 layer {
-  bottom: "pool5_fw_reshaped"
+  bottom: "pool5_diff_reshaped"
   bottom: "pool5_mask"
-  top: "conv5_fw"
-  name: "pool5_fw"
+  top: "conv5_diff"
+  name: "pool5_diff"
   type: "UnPooling"
   pooling_param {
     pool: MAX

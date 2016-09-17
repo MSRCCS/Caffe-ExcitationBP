@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include "caffe/blob.hpp"
 #include "caffe/common.hpp"
@@ -314,6 +315,36 @@ class Layer {
       param_propagate_down_.resize(param_id + 1, true);
     }
     param_propagate_down_[param_id] = value;
+  }
+  
+  /**
+   * @brief Helper function to print out a number of selected values for a vector, 
+   *        so that we can quickly check implementation, and see if the vector matches.
+   *        numnonzero is the number of none zero vector element to be shown to verify vector difference
+   */
+  inline void print_vector( const Dtype *vec, int count, int numnonzero = 5 )
+  {  
+     ostringstream buf; 
+     int nonzeros = 0;
+
+     buf << "Dim: "<< count<< " [ ";
+     for ( int i=0; i<count; i++ )
+     {
+        if ( vec[i]!=Dtype(0) )
+        {
+            if ( nonzeros!=0 )
+               buf << ", ";
+            nonzeros++;
+            buf << i << ":"<< vec[i];
+            if ( nonzeros >= numnonzero ) 
+               break;
+        } 
+     }
+     if ( nonzeros == 0 ) 
+        buf << " 0, ... 0 ]";
+     else 
+        buf << " ]";
+     LOG(INFO)<<buf.str();
   }
 
 

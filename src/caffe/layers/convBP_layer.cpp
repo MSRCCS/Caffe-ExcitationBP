@@ -21,40 +21,108 @@ void ConvolutionBPLayer<Dtype>::compute_output_shape() {
   }
 }
 
+template <typename Dtype>
+void ConvolutionBPLayer<Dtype>::forward_cpu_gemm_alt(const Dtype* input,
+    const Dtype* weights, Dtype* output, bool skip_im2col) {
+  const Dtype* col_buff = input;
+  if (!this->is_1x1_) {
+    if (!skip_im2col) {
+      LOG(WARNING) << "Use im2col on ConvBP, while it hasn't been implemented";
+      // conv_im2col_cpu(input, col_buffer_.mutable_cpu_data());
+    }
+    col_buff = this->col_buffer_.cpu_data();
+  }
+  for (int g = 0; g < this->group_; ++g) {
+    caffe_cpu_gemm<Dtype>(CblasNoTrans, CblasNoTrans, this->kernel_dim_,
+        this->conv_out_spatial_dim_, this->conv_out_channels_/this->group_, 
+        (Dtype)1., weights + this->weight_offset_ * g, col_buff + this->col_offset_ * g,
+        (Dtype)0., output + this->output_offset_ * g);
+  }
+}
+
+
 
 template <typename Dtype>
 void ConvolutionBPLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
+
+  vector<int> weight_shape = this->blobs_[0]->shape();
+  vector<int> top_diff_shape = top[0]->shape(); 
+  vector<int> bottom_diff_shape = bottom[0]->shape(); 
+  vector<int> bottom_org_shape = bottom[1]->shape(); 
+	
+  bool bMatch = weight_shape[0]==top_diff_shape[1] && weight_shape[0]==bottom_org_shape[1] // Match of original bottom
+             && weight_shape[1]==bottom_diff_shape[1]; // Match of the diff to be propaged down
+
+  // ToDo: Move the monitor in once code is stable
+  if ( true )
+  {
+     LOG(INFO)<<"Shape of W_data:" << this->blobs_[0]->shape_string();
+     LOG(INFO)<<"Shape of top: "<<top[0]->shape_string();
+     for ( int s=0; s<(int)bottom.size(); s++ )
+     {
+        LOG(INFO)<<"Shape of bottom " << s <<": "<<bottom[s]->shape_string();
+     }
+  };
+  if ( !bMatch ) 
+  {
+     LOG(FATAL)<<"Mismatched shape for the ConvBP layer";
+  }
+  // get the new weight W+
   const Dtype* W_data = this->blobs_[0]->cpu_data();
   Blob<Dtype> W_plus(this->blobs_[0]->shape());
   Dtype* W_plus_data = W_plus.mutable_cpu_data();
   for (int i = 0; i < W_plus.count(); ++i) {
-    W_plus_data[i] = std::max(W_data[i], Dtype(0));
+	  W_plus_data[i] = std::max(W_data[i], Dtype(0));
   }
 
-  Blob<Dtype> NN(top[0]->shape());
+  LOG(INFO)<<"Copy W_data to W_plus";
+  Blob<Dtype> NN(bottom[0]->shape());
   Dtype* NN_data = NN.mutable_cpu_data();
-      // compute the normalization factor by forwardpassing using W+
-      const Dtype* bottom_data = bottom[0]->cpu_data();
-      for (int n = 0; n < this->num_; ++n) {
-        this->forward_cpu_gemm(bottom_data + n * this->bottom_dim_, W_plus_data,
-            NN_data + n * this->top_dim_);
-      }
-      // do normalization
-      const Dtype* bottom_diff = bottom[1]->cpu_data();
-      for (int j = 0; j < NN.count(); ++j) {
-        NN_data[j] = NN_data[j] == Dtype(0) ? Dtype(0):(bottom_diff[j]/NN_data[j]);
-      }
+  
+  LOG(INFO)<<"This Num is: "<< this->num_<<" Group is: "<< this-> group_;
+  LOG(INFO)<<"Conv out channels is: "<< this->conv_out_channels_;
+  LOG(INFO)<<"Conv out spatial dimension is: "<< this->conv_out_spatial_dim_; 
+  LOG(INFO)<<"Kernel dimension is: "<< this->kernel_dim_; 
 
-      // do backward pass
-      Dtype* top_data = top[0]->mutable_cpu_data();
-      for (int n = 0; n < this->num_; ++n) {
-        this->backward_cpu_gemm(NN_data + n * this->bottom_dim_, W_plus_data,
-            top_data + n * this->top_dim_);
-      }
 
-      // multiply the bottom data
-      caffe_mul<Dtype>(top[0]->count(), top_data, bottom_data, top_data);
+  {
+         {  
+                  // The following name follows the convention of the mirrored forward path 
+                  // on the classification path.
+		  // compute the normalization factor by forwardpassing using W+
+		  const Dtype* bottom_data = bottom[1]->cpu_data();
+		  for (int n = 0; n < this->num_; ++n) {
+			  this->backward_cpu_gemm(bottom_data + n * this->top_dim_, W_plus_data,
+				  NN_data + n * this->bottom_dim_);
+		  }
+                  this->print_vector( W_plus_data, this->blobs_[0]->count() );
+                  this->print_vector( NN_data, bottom[0]->count() );
+		  // do normalization
+		  const Dtype* top_diff = bottom[0]->cpu_data();
+		  for (int j = 0; j < NN.count(); ++j) {
+			  NN_data[j] = NN_data[j] == Dtype(0) ? Dtype(0) : (top_diff[j] / NN_data[j]);
+		  }
+
+                  LOG(INFO)<<"Done Compute normalization";
+                  this->print_vector( NN_data, bottom[0]->count() );
+		  // do backward pass
+		  Dtype* bottom_diff = top[0]->mutable_cpu_data();
+		  for (int n = 0; n < this->num_; ++n) {
+			  this->forward_cpu_gemm(NN_data + n * this->bottom_dim_, W_plus_data,
+				  bottom_diff + n * this->top_dim_);
+		  }
+
+                  LOG(INFO)<<"Done backward pass";
+                  this->print_vector( bottom_diff, top[0]->count() );
+
+		  // multiply the bottom data
+		  caffe_mul<Dtype>(top[0]->count(), bottom_diff, bottom_data, bottom_diff);
+
+                  LOG(INFO)<<"Multiply bottom data";
+                  this->print_vector( bottom_diff, top[0]->count() );
+	  }
+  }
 }
 
 template <typename Dtype>
