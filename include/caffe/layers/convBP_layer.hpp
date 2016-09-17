@@ -68,6 +68,11 @@ class ConvolutionBPLayer : public BaseConvolutionLayer<Dtype> {
   virtual inline bool EqualNumBottomTopBlobs() const { return false; }
 
  protected:
+  // Add a special forward gpu gemm, as the weight matrix used is shared from forward layer, 
+  // As such, the convBP uses a transposed weight matrix
+  virtual void forward_cpu_gemm_alt(const Dtype* input, const Dtype* weights,
+      Dtype* output, bool skip_im2col = false);
+
   virtual void Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top);
   virtual void Forward_gpu(const vector<Blob<Dtype>*>& bottom,
