@@ -57,6 +57,7 @@ void ConvolutionBPLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   // ToDo: Move the monitor in once code is stable
   if ( true )
   {
+     LOG(INFO)<<"Name of layer: " << this->layer_param_.name();
      LOG(INFO)<<"Shape of W_data:" << this->blobs_[0]->shape_string();
      LOG(INFO)<<"Shape of top: "<<top[0]->shape_string();
      for ( int s=0; s<(int)bottom.size(); s++ )
