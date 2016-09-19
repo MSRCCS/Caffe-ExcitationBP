@@ -82,7 +82,7 @@ void ConvolutionLayer<Dtype>::Backward_eb_cpu(const vector<Blob<Dtype>*>& top,
   for (int i = 0; i < W_plus.count(); ++i) {
     W_plus_data[i] = std::max(W_data[i], Dtype(0));
   }
-  
+  LOG(INFO)<<"Name of layer: " << this->layer_param_.name(); 
   Blob<Dtype> NN(top[0]->shape());
   Dtype* NN_data = NN.mutable_cpu_data();
   for (int i = 0; i < top.size(); ++i) {

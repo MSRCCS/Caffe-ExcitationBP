@@ -15,8 +15,16 @@ void ConvolutionBPLayer<Dtype>::compute_output_shape() {
     // i + 1 to skip channel axis
     const int input_dim = this->input_shape(i + 1);
     const int kernel_extent = dilation_data[i] * (kernel_shape_data[i] - 1) + 1;
-    const int output_dim = (input_dim + 2 * pad_data[i] - kernel_extent)
-        / stride_data[i] + 1;
+    //const int output_dim = (input_dim + 2 * pad_data[i] - kernel_extent)
+    //    / stride_data[i] + 1;
+
+    //hongzl: output dim for convBP layer is different from the typical conv layer
+    // use the some setup with deconv layer
+    const int output_dim = stride_data[i] * (input_dim - 1)
+        + kernel_extent - 2 * pad_data[i];
+    LOG(INFO)<<"Name of layer: " << this->layer_param_.name();
+    LOG(INFO) << " num_spatial_axes_ :" << i <<" | " << " input_dim : " << input_dim << " | " << " kernel_extent: " << kernel_extent
+		<< " | output_dim: " << output_dim << " | stride_data: " << stride_data[i] << " | pad_data: " << pad_data[i];
     this->output_shape_.push_back(output_dim);
   }
 }
@@ -51,7 +59,8 @@ void ConvolutionBPLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   vector<int> bottom_diff_shape = bottom[0]->shape(); 
   vector<int> bottom_org_shape = bottom[1]->shape(); 
 	
-  bool bMatch = weight_shape[0]==top_diff_shape[1] && weight_shape[0]==bottom_org_shape[1] // Match of original bottom
+  bool bMatch = weight_shape[0]*weight_shape[2]*weight_shape[3]==top_diff_shape[1]*top_diff_shape[2]*top_diff_shape[3] 
+	     && weight_shape[0]*weight_shape[2]*weight_shape[3]==bottom_org_shape[1]*bottom_org_shape[2]*bottom_org_shape[3] // Match of original bottom
              && weight_shape[1]==bottom_diff_shape[1]; // Match of the diff to be propaged down
 
   // ToDo: Move the monitor in once code is stable
@@ -67,7 +76,8 @@ void ConvolutionBPLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   };
   if ( !bMatch ) 
   {
-     LOG(FATAL)<<"Mismatched shape for the ConvBP layer";
+     //LOG(FATAL)<<"Mismatched shape for the ConvBP layer";
+     LOG(WARNING)<<"Mismatched shape for the ConvBP layer";
   }
   // get the new weight W+
   const Dtype* W_data = this->blobs_[0]->cpu_data();
@@ -94,7 +104,7 @@ void ConvolutionBPLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		  // compute the normalization factor by forwardpassing using W+
 		  const Dtype* bottom_data = bottom[1]->cpu_data();
 		  for (int n = 0; n < this->num_; ++n) {
-			  this->backward_cpu_gemm_bp(bottom_data + n * this->top_dim_, W_plus_data,
+			  this->forward_cpu_gemm(bottom_data + n * this->top_dim_, W_plus_data,
 				  NN_data + n * this->bottom_dim_);
 		  }
 		  this->print_vector(bottom_data, bottom[1]->count() );
@@ -111,7 +121,7 @@ void ConvolutionBPLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		  // do backward pass
 		  Dtype* bottom_diff = top[0]->mutable_cpu_data();
 		  for (int n = 0; n < this->num_; ++n) {
-			  this->forward_cpu_gemm_bp(NN_data + n * this->bottom_dim_, W_plus_data,
+			  this->backward_cpu_gemm(NN_data + n * this->bottom_dim_, W_plus_data,
 				  bottom_diff + n * this->top_dim_);
 		  }
 

@@ -271,6 +271,7 @@ void BaseConvolutionLayer<Dtype>::forward_cpu_gemm(const Dtype* input,
         (Dtype)1., weights + weight_offset_ * g, col_buff + col_offset_ * g,
         (Dtype)0., output + output_offset_ * g);
   }
+  //LOG(INFO) << "in forward_cpu_gemm: conv_out_channels_, group_, conv_out_spatial_dim_, kernel_dim_ ,weight_offset_, col_offset_, output_offset_" << conv_out_channels_ << " ," << group_ << " ," << conv_out_spatial_dim_ << " ," << kernel_dim_ << " ," << weight_offset_ << " ," << col_offset_  << " ," << output_offset_;
 }
 
 
@@ -290,6 +291,7 @@ void BaseConvolutionLayer<Dtype>::forward_cpu_gemm_bp(const Dtype* input,
         group_, conv_out_spatial_dim_, kernel_dim_,
         (Dtype)1., weights + weight_offset_ * g, col_buff + col_offset_ * g,
         (Dtype)0., output + output_offset_ * g);
+//  LOG(INFO) << "in forward_cpu_gemm_bp: conv_out_channels_, group_, conv_out_spatial_dim_, kernel_dim_ ,weight_offset_, col_offset_, output_offset_" << conv_out_channels_ << " ," << group_ << " ," << conv_out_spatial_dim_ << " ," << kernel_dim_ << " ," << weight_offset_ << " ," << col_offset_ << " ," << output_offset_;
   }
 }
 
@@ -336,6 +338,7 @@ void BaseConvolutionLayer<Dtype>::backward_cpu_gemm_bp(const Dtype* output,
   if (!is_1x1_) {
     conv_col2im_cpu(col_buff, input);
   }
+//  LOG(INFO) << "in forward_cpu_gemm_bp: conv_out_channels_, group_, conv_out_spatial_dim_, kernel_dim_ ,weight_offset_, col_offset_, output_offset_" << conv_out_channels_ << " ," << group_ << " ," << conv_out_spatial_dim_ << " ," << kernel_dim_ << " ," << weight_offset_ << " ," << col_offset_ << " ," << output_offset_;
 }
 
 
