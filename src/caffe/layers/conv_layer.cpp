@@ -93,6 +93,7 @@ void ConvolutionLayer<Dtype>::Backward_eb_cpu(const vector<Blob<Dtype>*>& top,
         this->forward_cpu_gemm(bottom_data + n * this->bottom_dim_, W_plus_data,
             NN_data + n * this->top_dim_);
       }
+      this->print_vector(bottom_data, bottom[i]->count());
       this->print_vector( W_plus_data, this->blobs_[0]->count() );
       this->print_vector( NN_data, top[0]->count() );
       // do normalization

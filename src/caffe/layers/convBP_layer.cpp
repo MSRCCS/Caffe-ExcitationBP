@@ -93,9 +93,10 @@ void ConvolutionBPLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		  // compute the normalization factor by forwardpassing using W+
 		  const Dtype* bottom_data = bottom[1]->cpu_data();
 		  for (int n = 0; n < this->num_; ++n) {
-			  this->backward_cpu_gemm(bottom_data + n * this->top_dim_, W_plus_data,
+			  this->backward_cpu_gemm_bp(bottom_data + n * this->top_dim_, W_plus_data,
 				  NN_data + n * this->bottom_dim_);
 		  }
+		  this->print_vector(bottom_data, bottom[1]->count() );
                   this->print_vector( W_plus_data, this->blobs_[0]->count() );
                   this->print_vector( NN_data, bottom[0]->count() );
 		  // do normalization
@@ -109,7 +110,7 @@ void ConvolutionBPLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
 		  // do backward pass
 		  Dtype* bottom_diff = top[0]->mutable_cpu_data();
 		  for (int n = 0; n < this->num_; ++n) {
-			  this->forward_cpu_gemm(NN_data + n * this->bottom_dim_, W_plus_data,
+			  this->forward_cpu_gemm_bp(NN_data + n * this->bottom_dim_, W_plus_data,
 				  bottom_diff + n * this->top_dim_);
 		  }
 
