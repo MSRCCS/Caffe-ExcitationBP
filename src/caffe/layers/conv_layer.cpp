@@ -82,7 +82,7 @@ void ConvolutionLayer<Dtype>::Backward_eb_cpu(const vector<Blob<Dtype>*>& top,
   for (int i = 0; i < W_plus.count(); ++i) {
     W_plus_data[i] = std::max(W_data[i], Dtype(0));
   }
-  LOG(INFO)<<"Name of layer: " << this->layer_param_.name(); 
+  //LOG(INFO)<<"Name of layer: " << this->layer_param_.name(); 
   Blob<Dtype> NN(top[0]->shape());
   Dtype* NN_data = NN.mutable_cpu_data();
   for (int i = 0; i < top.size(); ++i) {
@@ -93,16 +93,16 @@ void ConvolutionLayer<Dtype>::Backward_eb_cpu(const vector<Blob<Dtype>*>& top,
         this->forward_cpu_gemm(bottom_data + n * this->bottom_dim_, W_plus_data,
             NN_data + n * this->top_dim_);
       }
-      this->print_vector(bottom_data, bottom[i]->count());
-      this->print_vector( W_plus_data, this->blobs_[0]->count() );
-      this->print_vector( NN_data, top[0]->count() );
+      //this->print_vector(bottom_data, bottom[i]->count());
+      //this->print_vector( W_plus_data, this->blobs_[0]->count() );
+      //this->print_vector( NN_data, top[0]->count() );
       // do normalization
       const Dtype* top_diff = top[i]->cpu_diff();
       for (int j = 0; j < NN.count(); ++j) {
         NN_data[j] = NN_data[j] == Dtype(0) ? Dtype(0):(top_diff[j]/NN_data[j]);
       }  
     
-      this->print_vector( NN_data, top[0]->count() );
+      //this->print_vector( NN_data, top[0]->count() );
       // do backward pass
       Dtype* bottom_diff = bottom[i]->mutable_cpu_diff();
       for (int n = 0; n < this->num_; ++n) {
@@ -110,12 +110,12 @@ void ConvolutionLayer<Dtype>::Backward_eb_cpu(const vector<Blob<Dtype>*>& top,
             bottom_diff + n * this->bottom_dim_);
       }
       
-      this->print_vector( bottom_diff, bottom[i]->count() );
+      //this->print_vector( bottom_diff, bottom[i]->count() );
 
       // multiply the bottom data
       caffe_mul<Dtype>(bottom[i]->count(), bottom_diff, bottom_data, bottom_diff);
 
-      this->print_vector( bottom_diff, bottom[i]->count() );
+      //this->print_vector( bottom_diff, bottom[i]->count() );
     }
   }
 }
