@@ -282,7 +282,6 @@ layer {
   }
   param {
     name: "conv5_3_w"
-    share_mode: 1
     lr_mult: 1
   }
   param {
@@ -514,7 +513,7 @@ layer {
 
 layer {
   bottom: "pool5_diff"
-  bottom: "conv5_3"
+  bottom: "conv5_2"
   top: "conv5_3_diff"
   name: "conv5_3_diff"
   type: "ConvolutionBP"
@@ -543,7 +542,7 @@ layer {
 
 layer {
   bottom: "conv5_3_diff"
-  bottom: "conv5_2"
+  bottom: "conv5_1"
   top: "conv5_2_diff"
   name: "conv5_2_diff"
   type: "ConvolutionBP"
@@ -570,7 +569,7 @@ layer {
 
 layer {
   bottom: "conv5_2_diff"
-  bottom: "conv5_1"
+  bottom: "pool4"
   top: "conv5_1_diff"
   name: "conv5_1_diff"
   type: "ConvolutionBP"
