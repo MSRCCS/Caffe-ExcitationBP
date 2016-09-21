@@ -394,7 +394,7 @@ layer {
   type: "EuclideanLoss"
 }
 layer {
-  name: "select"
+  name: "select_bp"
   type: "SelectOne"
   bottom: "prob"
   bottom: "label"
