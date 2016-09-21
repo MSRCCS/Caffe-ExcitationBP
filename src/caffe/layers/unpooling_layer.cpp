@@ -103,6 +103,9 @@ void UnPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       const vector<Blob<Dtype>*>& top) {
   const Dtype* bottom_data = bottom[0]->cpu_data();
   const Dtype* mask_data = bottom[1]->cpu_data();
+  this->print_vector( bottom_data, bottom[0]->count() );
+  this->print_vector( mask_data, bottom[0]->count() );
+
   Dtype* top_data = top[0]->mutable_cpu_data();
   const int top_count = top[0]->count();
   // Different pooling methods. We explicitly do the switch outside the for
@@ -110,7 +113,7 @@ void UnPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
   switch (this->layer_param_.pooling_param().pool()) {
   case PoolingParameter_PoolMethod_MAX:
     // Initialize
-    caffe_set(top_count, Dtype(-FLT_MAX), top_data);
+    caffe_set(top_count, Dtype(0), top_data);
     // The main loop
     for (int n = 0; n < bottom[0]->num(); ++n) {
       for (int c = 0; c < channels_; ++c) {
@@ -125,9 +128,39 @@ void UnPoolingLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
         top_data += top[0]->offset(0, 1);
       }
     }
+    this->print_vector( top_data, top[0]->count() );
     break;
   case PoolingParameter_PoolMethod_AVE:
-    NOT_IMPLEMENTED;
+    // The main loop
+    // in average pooling, the second bottom data should be the origin **input** to the pooling layer
+    for (int n = 0; n < bottom[0]->num(); ++n) {
+      for (int c = 0; c < channels_; ++c) {
+        for (int ph = 0; ph < height_; ++ph) {
+          for (int pw = 0; pw < width_; ++pw) {
+            int hstart = ph * stride_h_ - pad_h_;
+            int wstart = pw * stride_w_ - pad_w_;
+            int hend = min(hstart + kernel_h_, height_ + pad_h_);
+            int wend = min(wstart + kernel_w_, width_ + pad_w_);
+            int pool_size = (hend - hstart) * (wend - wstart);
+            hstart = max(hstart, 0);
+            wstart = max(wstart, 0);
+            hend = min(hend, height_);
+            wend = min(wend, width_);
+            Dtype bsum = bottom_data[ph * width_ + pw] * pool_size;
+            for (int h = hstart; h < hend; ++h) {
+              for (int w = wstart; w < wend; ++w) {
+                top_data[h * width_ + w] += bsum > Dtype(0) ?
+                  (bottom_data[h * width_ + w] * mask_data[ph * width_ + pw] / bsum):Dtype(0);
+              }
+            }
+          }
+        }
+        // offset
+        mask_data += bottom[0]->offset(0, 1);
+        bottom_data += bottom[0]->offset(0, 1);
+        top_data += top[0]->offset(0, 1);
+      }
+    }
     break;
   case PoolingParameter_PoolMethod_STOCHASTIC:
     NOT_IMPLEMENTED;
