@@ -7,22 +7,56 @@ namespace caffe {
 
 template <typename Dtype>
 __global__ void SelectOneForward(const int n, const Dtype* in, Dtype* out,
-    Dtype negative_slope) {
+    const int count) {
   CUDA_KERNEL_LOOP(index, n) {
-    out[index] = in[index] > 0 ? in[index] : in[index] * negative_slope;
+      int maxidx = 0;
+      for (int i = 0; i < count; ++i) 
+      {
+        if (in[i+index*count] > in[maxidx])
+        {
+          maxidx = i+index*count;
+          out[i+index*count] = 0;
+        }
+      }
+      out[maxidx] = 1;
   }
 }
+
+template <typename Dtype>
+__global__ void SelectOneForwardWithLabel(const int n, const Dtype* in, Dtype* out,
+    const int count, const Dtype* label) {
+  CUDA_KERNEL_LOOP(index, n) {
+    for (int i = 0; i < count; ++i) 
+    {
+      out[i+index*count] = 0;
+    }
+    out[static_cast<int>(label[index])+ index*count] = 1;
+  }
+}
+
+
 
 template <typename Dtype>
 void SelectOneLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
     const vector<Blob<Dtype>*>& top) {
   const Dtype* bottom_data = bottom[0]->gpu_data();
   Dtype* top_data = top[0]->mutable_gpu_data();
-  const int count = bottom[0]->count();
-  Dtype negative_slope = this->layer_param_.relu_param().negative_slope();
-  // NOLINT_NEXT_LINE(whitespace/operators)
-  SelectOneForward<Dtype><<<CAFFE_GET_BLOCKS(count), CAFFE_CUDA_NUM_THREADS>>>(
-      count, bottom_data, top_data, negative_slope);
+  const int count = bottom[0]->count(1);
+  const int num = bottom[0]->num();
+  if (bottom.size()==1)
+  {
+    // NOLINT_NEXT_LINE(whitespace/operators)
+    SelectOneForward<Dtype><<<CAFFE_GET_BLOCKS(num), CAFFE_CUDA_NUM_THREADS>>>(
+      num, bottom_data, top_data, count);
+  }
+  else 
+  {
+    const Dtype* label_data = bottom[1]->gpu_data();
+    // NOLINT_NEXT_LINE(whitespace/operators)
+    SelectOneForwardWithLabel<Dtype><<<CAFFE_GET_BLOCKS(num), CAFFE_CUDA_NUM_THREADS>>>(
+      num, bottom_data, top_data, count, label_data);
+  }
+
   CUDA_POST_KERNEL_CHECK;
   // << " count: " << count << " bottom_data: "
   //     << (unsigned long)bottom_data
@@ -45,6 +79,9 @@ template <typename Dtype>
 void SelectOneLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
+
+  NOT_IMPLEMENTED;
+
   if (propagate_down[0]) {
     const Dtype* bottom_data = bottom[0]->gpu_data();
     const Dtype* top_diff = top[0]->gpu_diff();
