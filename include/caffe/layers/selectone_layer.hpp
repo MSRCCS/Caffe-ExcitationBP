@@ -78,8 +78,9 @@ class SelectOneLayer : public NeuronLayer<Dtype> {
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
   virtual void Backward_gpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom);
+  virtual inline int ExactNumBottomBlobs() const { return -1; }  
 };
 
 }  // namespace caffe
 
-#endif  // CAFFE_RELU_LAYER_HPP_
+#endif  // CAFFE_SELECTONE_LAYER_HPP_
