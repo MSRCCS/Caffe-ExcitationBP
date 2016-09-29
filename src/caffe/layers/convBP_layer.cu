@@ -52,7 +52,7 @@ void ConvolutionBPLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
         LOG(INFO)<<"Shape of bottom " << s <<": "<<bottom[s]->shape_string();
      }
   };
-  if ( !bMatch ) 
+  if ( !bMatch && false) 
   {
      //LOG(FATAL)<<"Mismatched shape for the ConvBP layer";
      LOG(WARNING)<<"Mismatched shape for the ConvBP layer";
@@ -65,7 +65,7 @@ void ConvolutionBPLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
   pos_kernel_convBP<Dtype><<<CAFFE_GET_BLOCKS(W_plus.count()), CAFFE_CUDA_NUM_THREADS>>>(
         W_plus.count(), W_data, W_plus_data);
 
-  LOG(INFO)<<"Copy W_data to W_plus";
+  //LOG(INFO)<<"Copy W_data to W_plus";
   Blob<Dtype> NN(bottom[0]->shape());
   Dtype* NN_data = NN.mutable_gpu_data();
   
@@ -138,6 +138,10 @@ void ConvolutionBPLayer<Dtype>::Forward_gpu(const vector<Blob<Dtype>*>& bottom,
 template <typename Dtype>
 void ConvolutionBPLayer<Dtype>::Backward_gpu(const vector<Blob<Dtype>*>& top,
       const vector<bool>& propagate_down, const vector<Blob<Dtype>*>& bottom) {
+
+
+  NOT_IMPLEMENTED;
+
   const Dtype* weight = this->blobs_[0]->gpu_data();
   Dtype* weight_diff = this->blobs_[0]->mutable_gpu_diff();
   for (int i = 0; i < top.size(); ++i) {

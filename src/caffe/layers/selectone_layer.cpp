@@ -56,6 +56,7 @@ template <typename Dtype>
 void SelectOneLayer<Dtype>::Backward_cpu(const vector<Blob<Dtype>*>& top,
     const vector<bool>& propagate_down,
     const vector<Blob<Dtype>*>& bottom) {
+  NOT_IMPLEMENTED;
   if (propagate_down[0]) {
     //const Dtype* bottom_data = bottom[0]->cpu_data();
     const Dtype* top_diff = top[0]->cpu_diff();
