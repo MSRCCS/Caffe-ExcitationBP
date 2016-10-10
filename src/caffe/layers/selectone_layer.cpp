@@ -39,11 +39,26 @@ void SelectOneLayer<Dtype>::Forward_cpu(const vector<Blob<Dtype>*>& bottom,
       // TODO: check why caffe_memset doesn't work in multiple iterations
       // the memset does not reset the memory in each iteration.
       //caffe_memset(top[0]->count(),0,top_data);
-      for (int i = 0; i < count; ++i) 
+      int maxidx = static_cast<int>(label_data[n]);
+      if (label_data[n] < 0)
       {
-        top_data[i] = 0;
+        for (int i = 0; i < count; ++i) 
+        {
+          if (bottom_data[i] > bottom_data[maxidx])
+          {
+            maxidx = i;
+            top_data[i] = 0;
+          }
+        }
       }
-      top_data[static_cast<int>(label_data[n])] = 1;
+      else 
+      {
+        for (int i = 0; i < count; ++i) 
+        {
+          top_data[i] = 0;
+        }
+      }
+      top_data[maxidx] = 1;
       bottom_data += count;
       top_data += count;   
     }

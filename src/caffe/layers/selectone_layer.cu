@@ -26,11 +26,27 @@ template <typename Dtype>
 __global__ void SelectOneForwardWithLabel(const int n, const Dtype* in, Dtype* out,
     const int count, const Dtype* label) {
   CUDA_KERNEL_LOOP(index, n) {
-    for (int i = 0; i < count; ++i) 
+    if (label[index] < 0)
     {
-      out[i+index*count] = 0;
+      int maxidx = 0;
+      for (int i = 0; i < count; ++i) 
+      {
+        if (in[i+index*count] > in[maxidx])
+        {
+          maxidx = i+index*count;
+          out[i+index*count] = 0;
+        }
+      }
+      out[maxidx] = 1;    
     }
-    out[static_cast<int>(label[index])+ index*count] = 1;
+    else
+    {
+      for (int i = 0; i < count; ++i) 
+      {
+        out[i+index*count] = 0;
+      }
+      out[static_cast<int>(label[index])+ index*count] = 1;
+    }
   }
 }
 
