@@ -390,6 +390,7 @@ BOOST_PYTHON_MODULE(_caffe) {
     .def("solve", static_cast<void (Solver<Dtype>::*)(const char*)>(
           &Solver<Dtype>::Solve), SolveOverloads())
     .def("step", &Solver<Dtype>::Step)
+	.def("step_with_loss", &Solver<Dtype>::Step_with_loss)
     .def("restore", &Solver<Dtype>::Restore)
     .def("snapshot", &Solver<Dtype>::Snapshot);
   BP_REGISTER_SHARED_PTR_TO_PYTHON(Solver<Dtype>);
